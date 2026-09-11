@@ -1,8 +1,8 @@
 locals {
-  controlplane_ip = proxmox_vm_qemu.nodes["controlplane"].default_ipv4_address
+  controlplane_ip  = proxmox_vm_qemu.nodes["controlplane"].default_ipv4_address
   cluster_endpoint = "https://${local.controlplane_ip}:6443"
-  worker_ip_1 = proxmox_vm_qemu.nodes["worker1"].default_ipv4_address
-  worker_ip_2 = proxmox_vm_qemu.nodes["worker2"].default_ipv4_address
+  worker_ip_1      = proxmox_vm_qemu.nodes["worker1"].default_ipv4_address
+  worker_ip_2      = proxmox_vm_qemu.nodes["worker2"].default_ipv4_address
 }
 
 resource "talos_machine_secrets" "secrets" {}
@@ -24,7 +24,7 @@ data "talos_machine_configuration" "worker" {
 data "talos_client_configuration" "talosconfig" {
   cluster_name         = var.cluster_name
   client_configuration = talos_machine_secrets.secrets.client_configuration
-#   nodes = [local.controlplane_ip,local.worker_ip_1,local.worker_ip_2]
+  #   nodes = [local.controlplane_ip,local.worker_ip_1,local.worker_ip_2]
   nodes = [local.controlplane_ip]
 }
 
@@ -47,27 +47,27 @@ data "talos_client_configuration" "talosconfig" {
 ###########################################################################################
 
 resource "talos_machine_configuration_apply" "controlplane" {
-  client_configuration  = talos_machine_secrets.secrets.client_configuration
-#   client_configuration = data.talos_client_configuration.talosconfig.client_configuration
+  client_configuration = talos_machine_secrets.secrets.client_configuration
+  #   client_configuration = data.talos_client_configuration.talosconfig.client_configuration
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
-  node                  = local.controlplane_ip
-  endpoint              = local.controlplane_ip
+  node                        = local.controlplane_ip
+  endpoint                    = local.controlplane_ip
 }
 
 resource "talos_machine_configuration_apply" "worker1" {
-  depends_on = [ talos_machine_configuration_apply.controlplane ]
-  client_configuration  = talos_machine_secrets.secrets.client_configuration
+  depends_on                  = [talos_machine_configuration_apply.controlplane]
+  client_configuration        = talos_machine_secrets.secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
-  node                  = local.worker_ip_1
-  endpoint              = local.worker_ip_1
+  node                        = local.worker_ip_1
+  endpoint                    = local.worker_ip_1
 }
 
 resource "talos_machine_configuration_apply" "worker2" {
-  depends_on = [ talos_machine_configuration_apply.controlplane ]
-  client_configuration  = talos_machine_secrets.secrets.client_configuration
+  depends_on                  = [talos_machine_configuration_apply.controlplane]
+  client_configuration        = talos_machine_secrets.secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
-  node                  = local.worker_ip_2
-  endpoint              = local.worker_ip_2
+  node                        = local.worker_ip_2
+  endpoint                    = local.worker_ip_2
 }
 
 resource "talos_machine_bootstrap" "controlplane" {
@@ -75,7 +75,7 @@ resource "talos_machine_bootstrap" "controlplane" {
     talos_machine_configuration_apply.controlplane
   ]
   node                 = local.controlplane_ip
-  endpoint = local.controlplane_ip
+  endpoint             = local.controlplane_ip
   client_configuration = talos_machine_secrets.secrets.client_configuration
 }
 

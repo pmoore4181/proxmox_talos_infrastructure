@@ -51,7 +51,7 @@
         - `export PM_API_TOKEN_ID=terraform-prov@pve!tf_infra`
         - `export PM_API_TOKEN_SECRET=<secret>`
 
-- Create `controlplane`, `worker`, and `worker1` VMs
+- Create `controlplane`, `worker1`, and `worker2` VMs
 - Apply Talos configs via Terraform
 - Output kubeconfig and talosconfig
 - Talos Config
