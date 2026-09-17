@@ -51,6 +51,7 @@
         - `export PM_API_TOKEN_ID=terraform-prov@pve!tf_infra`
         - `export PM_API_TOKEN_SECRET=<secret>`
 
+## Talos
 - Create `controlplane`, `worker1`, and `worker2` VMs
 - Apply Talos configs via Terraform
 - Output kubeconfig and talosconfig
@@ -61,6 +62,16 @@
     - `$ terraform output -raw kubeconfig > .../terraform/.kube/kubeconfig.yaml`
     - `$ export KUBECONFIG-.../terraform/.kube/kubeconfig.yaml`
 
+## Container Network Interface (CNI)
+- Uninstall Flannel (default CNI for Talos)
+- Install Cilium via Terraform and Helm
 
 # Outputs
 - `./terraform/outputs.tf`
+
+# Steps after completion
+1. Update `envars_in_terminal.sh`
+    - IP Addresses
+    - Environment variables
+2. Export TF Output `kubeconfig` and `talosconfig`
+    - make sure file path matches envars
