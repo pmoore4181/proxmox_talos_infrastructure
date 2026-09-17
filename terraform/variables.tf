@@ -9,7 +9,7 @@ variable "vm_configs" {
     vm_tags        = string
     cpu_cores      = number
     memory         = number
-    bootdisk_size  = string
+    bootdisk_size  = number
   }))
   description = "Configs for ControlPlane and Worker Node VMs"
 }
@@ -28,4 +28,8 @@ variable "storage_location" {
 variable "cluster_name" {
   type        = string
   description = "Talos Cluster Name"
+}
+variable "talos_installer_image" {
+  type = string
+  description = "Installer image from sidero labs docs"
 }

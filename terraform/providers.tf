@@ -8,6 +8,10 @@ terraform {
       source  = "siderolabs/talos"
       version = "0.11.0"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "3.3.0"
+    }
   }
 }
 
@@ -17,3 +21,9 @@ provider "proxmox" {
 }
 
 provider "talos" {}
+
+provider "helm" {
+  kubernetes = {
+    config_path = "./kubeconfig"
+  }
+}
