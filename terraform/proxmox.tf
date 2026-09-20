@@ -1,20 +1,17 @@
 resource "proxmox_vm_qemu" "nodes" {
   for_each = { for config in var.vm_configs : config.vm_name => config }
 
-  name                   = each.value.vm_name
-  target_node            = var.node_name
-  description            = each.value.vm_description
-  agent                  = 1 # Enables QEMU Guest Agent
-  qemu_os                = "l26"
-  tags                   = each.value.vm_tags
-  memory                 = each.value.memory
-  scsihw                 = "virtio-scsi-single"
-  ciupgrade = true
-  # ipconfig0              = "[ip=${each.value.ip}/32]"
-  # define_connection_info = true
-  # ssh_forward_ip         = each.value.ip
-  skip_ipv6              = true
-  agent_timeout          = 240 # 4 minutes. Usually takes around 2min 15sec
+  name          = each.value.vm_name
+  target_node   = var.node_name
+  description   = each.value.vm_description
+  agent         = 1 # Enables QEMU Guest Agent
+  qemu_os       = "l26"
+  tags          = each.value.vm_tags
+  memory        = each.value.memory
+  scsihw        = "virtio-scsi-single"
+  ciupgrade     = true
+  skip_ipv6     = true
+  agent_timeout = 240 # 4 minutes. Usually takes around 2min 15sec
 
   cpu {
     cores   = each.value.cpu_cores

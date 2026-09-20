@@ -30,6 +30,6 @@ variable "cluster_name" {
   description = "Talos Cluster Name"
 }
 variable "talos_installer_image" {
-  type = string
+  type        = string
   description = "Installer image from sidero labs docs"
 }

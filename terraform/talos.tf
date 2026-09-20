@@ -6,54 +6,53 @@ locals {
 }
 
 resource "talos_machine_secrets" "secrets" {
-  depends_on = [ proxmox_vm_qemu.nodes ]
+  depends_on = [proxmox_vm_qemu.nodes]
 }
 
 data "talos_machine_configuration" "controlplane" {
-  depends_on = [ proxmox_vm_qemu.nodes, talos_machine_secrets.secrets ]
+  depends_on       = [proxmox_vm_qemu.nodes, talos_machine_secrets.secrets]
   cluster_name     = var.cluster_name
   cluster_endpoint = local.cluster_endpoint
   machine_type     = "controlplane"
   machine_secrets  = talos_machine_secrets.secrets.machine_secrets
-  docs = true
-  # Ensure Talos uses correct path for ISO File
+  docs             = true
   # Disable Flannel, default CNI for Talos
-  # config_patches = [
-    # yamlencode({
-    #   cluster = {
-    #     network = {
-    #       cni = {
-    #         name = "none"
+  config_patches = [
+    yamlencode({
+      cluster = {
+        network = {
+          cni = {
+            name = "none"
+          }
+        }
+      }
+    })
+    #   yamlencode({
+    #     cluster = {
+    #       proxy = {
+    #         disabled = true
     #       }
     #     }
-    #   }
-    # }),
-    # yamlencode({
-    #   cluster = {
-    #     proxy = {
-    #       disabled = true
-    #     }
-    #   }
-    # })
-  # ]
+    #   })
+  ]
 }
 
 data "talos_machine_configuration" "worker" {
-  depends_on = [ proxmox_vm_qemu.nodes, talos_machine_secrets.secrets ]
+  depends_on       = [proxmox_vm_qemu.nodes, talos_machine_secrets.secrets]
   cluster_name     = var.cluster_name
   cluster_endpoint = local.cluster_endpoint
   machine_type     = "worker"
   machine_secrets  = talos_machine_secrets.secrets.machine_secrets
-  # config_patches = [
-    # yamlencode({
-    #   cluster = {
-    #     network = {
-    #       cni = {
-    #         name = "none"
-    #       }
-    #     }
-    #   }
-    # }),
+  config_patches = [
+    yamlencode({
+      cluster = {
+        network = {
+          cni = {
+            name = "none"
+          }
+        }
+      }
+    })
     # yamlencode({
     #   cluster = {
     #     proxy = {
@@ -61,22 +60,22 @@ data "talos_machine_configuration" "worker" {
     #     }
     #   }
     # })
-  # ]
+  ]
 }
 
 data "talos_client_configuration" "talosconfig" {
   cluster_name         = var.cluster_name
   client_configuration = talos_machine_secrets.secrets.client_configuration
-  nodes = [local.controlplane_ip]
+  nodes                = [local.controlplane_ip]
 }
 
 resource "talos_machine_configuration_apply" "controlplane" {
-  depends_on = [ data.talos_machine_configuration.controlplane ]
-  client_configuration = talos_machine_secrets.secrets.client_configuration
+  depends_on                  = [data.talos_machine_configuration.controlplane]
+  client_configuration        = talos_machine_secrets.secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
   node                        = local.controlplane_ip
   endpoint                    = local.controlplane_ip
-  apply_mode = "reboot"
+  apply_mode                  = "reboot"
   timeouts = {
     create = "7m"
     update = "5m"
@@ -85,11 +84,11 @@ resource "talos_machine_configuration_apply" "controlplane" {
 
 resource "talos_machine_configuration_apply" "worker1" {
   # depends_on                  = [talos_machine_bootstrap.controlplane] # Only start after controlplane is bootstrapped
-  client_configuration = talos_machine_secrets.secrets.client_configuration
+  client_configuration        = talos_machine_secrets.secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
   node                        = local.worker_ip_1
   endpoint                    = local.worker_ip_1
-  apply_mode = "reboot"
+  apply_mode                  = "reboot"
   timeouts = {
     create = "7m"
     update = "5m"
@@ -98,11 +97,11 @@ resource "talos_machine_configuration_apply" "worker1" {
 
 resource "talos_machine_configuration_apply" "worker2" {
   # depends_on                  = [talos_machine_bootstrap.controlplane] # Only start after controlplane is bootstrapped
-  client_configuration = talos_machine_secrets.secrets.client_configuration
+  client_configuration        = talos_machine_secrets.secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
   node                        = local.worker_ip_2
   endpoint                    = local.worker_ip_2
-  apply_mode = "reboot"
+  apply_mode                  = "reboot"
   timeouts = {
     create = "7m"
     update = "5m"
@@ -111,15 +110,15 @@ resource "talos_machine_configuration_apply" "worker2" {
 
 resource "time_sleep" "wait_for_controlplane" {
   create_duration = "2m"
-  
+
   depends_on = [talos_machine_configuration_apply.controlplane]
 }
 
 resource "talos_machine_bootstrap" "controlplane" {
-  depends_on = [ time_sleep.wait_for_controlplane ]
-  node = local.controlplane_ip
+  depends_on           = [time_sleep.wait_for_controlplane]
+  node                 = local.controlplane_ip
   client_configuration = talos_machine_secrets.secrets.client_configuration
-  endpoint = local.controlplane_ip
+  endpoint             = local.controlplane_ip
   timeouts = {
     create = "5m"
   }
@@ -132,7 +131,30 @@ resource "talos_cluster_kubeconfig" "kubeconfig" {
 }
 
 
-# # Install Cilium CNI Helm Chart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# │ Error: installation failed
+# │
+# │   with helm_release.cilium,
+# │   on talos.tf line 135, in resource "helm_release" "cilium":
+# │  135: resource "helm_release" "cilium" {
+# │
+# │ Kubernetes cluster unreachable: Get "https://192.168.122.13:6443/version": dial tcp 192.168.122.13:6443: connect: no route to host
+
+
+# Install Cilium CNI Helm Chart
 # resource "helm_release" "cilium" {
 #   dependency_update = true
 

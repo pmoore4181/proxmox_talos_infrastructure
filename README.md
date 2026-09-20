@@ -4,6 +4,8 @@
 - Generate Talos Configs and apply to VMS
     - 1 Controlplane
     - 2 Workers
+- Create Kubernetes cluster
+- **CNI NOT INSTALLED. MUST INSTALL CILIUM OR OTHER CNI**
 
 ## Prereqs
 - Proxmox VE
@@ -12,17 +14,24 @@
 
 ## Commands
 ### Set envars
-    - `source ./envars_in_terminal.sh`
+`source ./envars_in_terminal.sh`
 ### Proxmox Infra
-    - `tf apply -var-file proxmox.tfvars`
+`tf apply -var-file proxmox.tfvars`
 
 ## Instructions
 - Followed steps here:
     - https://docs.siderolabs.com/talos/v1.9/platform-specific-installations/virtualized-platforms/proxmox
 
 ## Envars
-- **Created shell script to add envars as tmux envars so they are applied to all panes in session**
-- envars_in_terminal.sh
+```
+KUBECONFIG = file location
+TALOSCONFIG = file location
+CONTROL_PLANE_IP
+WORKER_IP_1
+WORKER_IP_2
+PM_API_TOKEN_ID = Proxmox Identity used for TF deployment
+PM_API_TOKEN_SECRET
+```
 
 ## Adding Storage
 - USB Stick plugged into Lenovo Thinkpad laptop
@@ -63,8 +72,8 @@
     - `$ export KUBECONFIG-.../terraform/.kube/kubeconfig.yaml`
 
 ## Container Network Interface (CNI)
-- Uninstall Flannel (default CNI for Talos)
-- Install Cilium via Terraform and Helm
+- Uninstall Flannel (default CNI for Talos) in `talos.tf`
+- Install Cilium via Terraform and Helm in Helm chart
 
 # Outputs
 - `./terraform/outputs.tf`
@@ -75,3 +84,35 @@
     - Environment variables
 2. Export TF Output `kubeconfig` and `talosconfig`
     - make sure file path matches envars
+3. Verify VMs are ON. Sometimes they don't reboot all the way
+4. Install Cilium (Flannel is removed in talos vm TF configs)
+    - `helm repo add cilium https://helm.cilium.io/`
+    - `helm repo update`
+    - `helm install cilium cilium/cilium --namespace kube-system --version 1.19.2 --values .../helm/cilium-values.yaml`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Left off
+- ran tf apply
+- flannel removed
+- need to install fluxcd and integrate github repo
+- use fluxcd to install cilium, longhorn, etc.
