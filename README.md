@@ -112,7 +112,10 @@ PM_API_TOKEN_SECRET
 
 
 # Left off
-- ran tf apply
-- flannel removed
-- need to install fluxcd and integrate github repo
-- use fluxcd to install cilium, longhorn, etc.
+- separated infrastructure
+    - proxmox_and_talos creates VMs
+    - helm_installs installs helm charts. kubeconfig is required for theses steps
+- deploy ./infrastructure/proxmox_and_talos
+    - gets created without CNI so Nodes are not ready
+- try deploying ./infrastructure/helm_installs
+    - should install Cilium, Longhorn, FluxCD
